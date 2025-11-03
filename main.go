@@ -22,9 +22,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	mux.HandleFunc("GET /", fsvr.middleware(fileHandler))
 	mux.Handle("GET /web/", http.FileServer(http.FS(frontend)))
 	mux.HandleFunc("POST /upload", fsvr.middleware(uploadHandler))
+	mux.HandleFunc("GET /files/{file}", fsvr.middleware(downloadHandler))
+	mux.HandleFunc("GET /", fsvr.middleware(fileHandler))
 
 	server := &http.Server{Addr: fmt.Sprintf(":%s", "8090"), Handler: mux}
 	serverErr := make(chan error, 1)
@@ -52,6 +53,4 @@ func main() {
 	if err := server.Shutdown(ctx); err != nil {
 		log.Fatalf("server shutdown failed: %v\n", err)
 	}
-
-	log.Println("server shutdown completed")
 }
