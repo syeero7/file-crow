@@ -6,10 +6,12 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"runtime"
+	"strings"
 )
 
-type File struct{ Name, Size string }
+type File struct{ Temp, Name, Size string }
 
 type fileServer struct {
 	Files     []File
@@ -64,7 +66,8 @@ func (f *fileServer) readFSDir() error {
 		}
 
 		file := File{
-			Name: info.Name(),
+			Temp: info.Name(),
+			Name: tmpToNormal(info.Name()),
 			Size: humanReadSize(info.Size()),
 		}
 		f.Files = append(f.Files, file)
@@ -86,4 +89,15 @@ func humanReadSize(s int64) string {
 	}
 
 	return fmt.Sprintf("%.2f %cB", float64(s)/float64(div), "kMGTPE"[exp])
+}
+
+func tmpToNormal(name string) string {
+	parts := strings.Split(name, "_tmp-")
+	if len(parts) == 1 {
+		return name
+	}
+
+	str := strings.Join(parts[:len(parts)-1], "")
+	ext := filepath.Ext(parts[len(parts)-1])
+	return str + ext
 }

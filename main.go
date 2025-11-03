@@ -24,6 +24,7 @@ func main() {
 
 	mux.HandleFunc("GET /", fsvr.middleware(fileHandler))
 	mux.Handle("GET /web/", http.FileServer(http.FS(frontend)))
+	mux.HandleFunc("POST /upload", fsvr.middleware(uploadHandler))
 
 	server := &http.Server{Addr: fmt.Sprintf(":%s", "8090"), Handler: mux}
 	serverErr := make(chan error, 1)

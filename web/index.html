@@ -11,7 +11,7 @@
       <h1>File Crow</h1>
       <section>
         <h2>Upload Files</h2>
-        <form method="post" enctype="multipart/formdata">
+        <form method="post" enctype="multipart/form-data" action="/upload">
           <label>
             <span>Select files to upload</span>
             <input type="file" name="file" multiple />
@@ -27,7 +27,7 @@
           {{range .Files}}
           <li>
             <p>{{.Name}} {{.Size}}</p>
-            <a href="/files/{{.Name}}" download>download</a>
+            <a href="/files/{{.Temp}}" download="{{.Name}}">download</a>
             <form method="post">
               <button type="submit">delete</button>
             </form>
