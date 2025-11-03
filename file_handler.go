@@ -10,7 +10,7 @@ type FSData struct {
 	Files []File
 }
 
-func fileHandler(files []File, w http.ResponseWriter, _ *http.Request) {
+func fileHandler(fsvr *fileServer, w http.ResponseWriter, _ *http.Request) {
 	t, err := template.ParseFS(frontend, "web/index.html")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -18,7 +18,13 @@ func fileHandler(files []File, w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
-	data := FSData{Files: files}
+	if err := fsvr.readFSDir(); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+
+	data := FSData{Files: fsvr.Files}
 	if err := t.Execute(w, data); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)

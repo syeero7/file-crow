@@ -16,15 +16,9 @@ type fileServer struct {
 	directory string
 }
 
-func (f *fileServer) middleware(fn func([]File, http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+func (f *fileServer) middleware(fn func(*fileServer, http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := f.readFSDir(); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println(err)
-			return
-		}
-
-		fn(f.Files, w, r)
+		fn(f, w, r)
 	}
 }
 
