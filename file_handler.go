@@ -10,7 +10,12 @@ type FSData struct {
 	Files []File
 }
 
-func fileHandler(fsvr *fileServer, w http.ResponseWriter, _ *http.Request) {
+func fileHandler(fsvr *fileServer, w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+
 	t, err := template.ParseFS(frontend, "web/index.html")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
