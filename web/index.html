@@ -9,7 +9,7 @@
   <body>
     <main>
       <h1>File Crow</h1>
-      <section>
+      <section class="upload">
         <h2>Upload Files</h2>
         <form method="post" enctype="multipart/form-data" action="/upload">
           <label>
@@ -18,19 +18,21 @@
           </label>
           <button type="submit">Upload</button>
         </form>
-        <article>
-          <div>
-            <div></div>
-            <span>{{.Usage.Percentage}}</span>
+        <article class="disk-usage">
+          <div class="usage-indicator">
+            <div style="--used-space:{{.Usage.Percentage}};"></div>
           </div>
-          <p>{{.Usage.Free}} free of {{.Usage.Total}}</p>
+          <p>
+            <span>{{.Usage.Free}} free of {{.Usage.Total}} </span>
+            <span>{{.Usage.Percentage}} used</span>
+          </p>
         </article>
       </section>
 
-      <section>
+      <section class="download">
         <h2>Download Files</h2>
         {{if gt (len .Files) 0}}
-        <div>
+        <div class="delete-all">
           <form
             method="post"
             action="/delete"
@@ -39,7 +41,7 @@
             <button type="submit">delete all files</button>
           </form>
         </div>
-        <ul>
+        <ul class="files">
           {{range .Files}}
           <li>
             <p>{{.Name}} {{.Size}}</p>
@@ -55,7 +57,7 @@
           {{end}}
         </ul>
         {{else}}
-        <p>There are no files available for download</p>
+        <p class="empty">There are no files available for download</p>
         {{end}}
       </section>
     </main>
