@@ -43,7 +43,11 @@
             action="/delete"
             onsubmit="return confirm('Are you sure you want to delete all {{len .Files}} files?')"
           >
+            {{if eq (len .Files) 1}}
+            <button type="submit" title="delete all files" disabled>
+            {{else}}
             <button type="submit" title="delete all files">
+            {{end}}
               <img src="/web/folder-remove.webp" alt="delete all files" />
             </button>
           </form>
