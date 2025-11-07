@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,6 +17,14 @@ import (
 var frontend embed.FS
 
 func main() {
+	port := flag.Int("port", 8080, "The port number to run the server on.")
+	flag.Parse()
+
+	if len(os.Args) == 2 && (os.Args[1] == "-h" || os.Args[1] == "--help") {
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
+
 	mux := http.NewServeMux()
 	fsvr := fileServer{}
 	if err := fsvr.makeFSDir(); err != nil {
@@ -29,7 +38,7 @@ func main() {
 	mux.HandleFunc("POST /delete/{file}", fsvr.middleware(deleteFileHandler))
 	mux.HandleFunc("GET /", fsvr.middleware(fileHandler))
 
-	server := &http.Server{Addr: fmt.Sprintf(":%s", "8090"), Handler: mux}
+	server := &http.Server{Addr: fmt.Sprintf(":%d", *port), Handler: mux}
 	serverErr := make(chan error, 1)
 
 	go func() {
