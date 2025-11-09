@@ -70,16 +70,14 @@ func main() {
 }
 
 func printWebInterfaceAddr(port string) {
-	addrs, err := net.InterfaceAddrs()
+	conn, err := net.Dial("udp", "1.1.1.1:80")
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	for _, addr := range addrs {
-		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() && ipnet.IP.To4() != nil {
-			fmt.Printf("access other interfaces at http://%s%s\n", ipnet.IP.To4().String(), port)
-			return
-		}
+	defer conn.Close()
+	if addr, ok := conn.LocalAddr().(*net.UDPAddr); ok {
+		fmt.Printf("access other interfaces at http://%s%s\n", addr.IP.To4().String(), port)
 	}
 }
