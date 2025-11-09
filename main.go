@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -42,7 +43,9 @@ func main() {
 	serverErr := make(chan error, 1)
 
 	go func() {
-		log.Printf("file server is running on http://localhost%s\n", server.Addr)
+		fmt.Printf("access main interface at http://localhost%s\n", server.Addr)
+		printWebInterfaceAddr(server.Addr)
+		fmt.Println("---------------------------------------------------")
 		if err := server.ListenAndServe(); err != nil {
 			serverErr <- err
 		}
@@ -63,5 +66,20 @@ func main() {
 
 	if err := server.Shutdown(ctx); err != nil {
 		log.Fatalf("server shutdown failed: %v\n", err)
+	}
+}
+
+func printWebInterfaceAddr(port string) {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	for _, addr := range addrs {
+		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() && ipnet.IP.To4() != nil {
+			fmt.Printf("access other interfaces at http://%s%s\n", ipnet.IP.To4().String(), port)
+			return
+		}
 	}
 }
