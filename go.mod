@@ -1,6 +1,6 @@
 module github.com/syeero7/file-crow
 
-go 1.24.7
+go 1.25.5
 
 require github.com/shirou/gopsutil/v4 v4.25.10
 
