@@ -32,16 +32,16 @@ func main() {
 		log.Fatal(err)
 	}
 
+	mux.HandleFunc("POST /register", registerHandler)
+	mux.HandleFunc("POST /stream", streamHandler)
+
 	mux.Handle("GET /web/", http.FileServer(http.FS(frontend)))
-	mux.HandleFunc("/ws", websocketHandler)
-	mux.HandleFunc("GET /files/{file}", fsvr.middleware(downloadHandler))
+	//	mux.HandleFunc("GET /files/{file}", fsvr.middleware(downloadHandler))
 	// mux.HandleFunc("POST /upload", fsvr.middleware(uploadHandler))
-	mux.HandleFunc("POST /upload", uploadPipe)
-	mux.HandleFunc("GET /download", downloadPipe)
-	mux.HandleFunc("POST /delete", fsvr.middleware(deleteAllHandler))
-	mux.HandleFunc("POST /delete/{file}", fsvr.middleware(deleteFileHandler))
+	// mux.HandleFunc("POST /delete", fsvr.middleware(deleteAllHandler))
+	// mux.HandleFunc("POST /delete/{file}", fsvr.middleware(deleteFileHandler))
 	// mux.HandleFunc("GET /", fsvr.middleware(fileHandler))
-	mux.Handle("/", http.FileServer(http.Dir("./public")))
+	// mux.Handle("/", http.FileServer(http.Dir("./public")))
 
 	server := &http.Server{
 		Addr:              fmt.Sprintf(":%d", *port),
