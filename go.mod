@@ -11,4 +11,5 @@ require (
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/sys v0.39.0 // indirect
+	golang.org/x/time v0.14.0 // indirect
 )
