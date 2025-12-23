@@ -7,7 +7,22 @@
     <title>File Crow</title>
   </head>
   <body>
-    <div id="app"></div>
+    <main>
+      <h1>File Crow</h1>
+      <section>
+        <form data-upload-form>
+          <div>
+            <input
+              type="file"
+              name="files"
+              multiple
+              aira-label="select files to upload"
+            />
+          </div>
+          <button type="submit">Upload</button>
+        </form>
+      </section>
+    </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
