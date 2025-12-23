@@ -15,16 +15,18 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: broadcast file transfer start
+
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", ft.name))
 	w.Header().Set("Content-Type", "application/octet-stream")
 	if _, err := io.Copy(w, ft.session.reader); err != nil {
 		log.Printf("transfer failed: %v", err)
 	}
 
-	// TODO: broadcast file transfer speed
-
 	ft.session.reader.Close()
 	ft.session.done <- struct{}{}
+
+	// TODO: broadcast file transfer end
 
 	transfers.remove(id)
 	w.WriteHeader(http.StatusOK)

@@ -1,10 +1,34 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
 )
+
+type ProgressWriter struct {
+	writer     io.Writer
+	total      int
+	written    int
+	onProgress func(int, int)
+}
+
+func (pw *ProgressWriter) Write(d []byte) (int, error) {
+	n, err := pw.writer.Write(d)
+	if n > 0 {
+		pw.written += n
+		pw.onProgress(pw.written, pw.total)
+	}
+	return n, err
+}
+
+type FileProgress struct {
+	ID      string `json:"id"`
+	Total   int    `json:"total"`
+	Current int    `json:"current"`
+	Type    string `json:"type"`
+}
 
 func streamHandler(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
@@ -14,7 +38,20 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := io.Copy(ft.session.writer, r.Body); err != nil {
+	pw := &ProgressWriter{
+		total:  int(r.ContentLength),
+		writer: ft.session.writer,
+		onProgress: func(current, total int) {
+			p := FileProgress{ID: id, Total: total, Current: current, Type: "progress"}
+			msg, err := json.Marshal(p)
+			if err != nil {
+				log.Println(err)
+			}
+			fileServer.broadcast(msg)
+		},
+	}
+
+	if _, err := io.Copy(pw, r.Body); err != nil {
 		log.Printf("transfer failed: %v", err)
 	}
 
