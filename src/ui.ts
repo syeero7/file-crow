@@ -1,5 +1,5 @@
+import { getFilesMap } from "./main";
 import { getDownloadURL } from "./api";
-import { getFilesMap } from "./main.ts";
 import { getElement } from "./utils";
 
 const fileList = getElement("[data-files]");

@@ -1,16 +1,11 @@
-import "./style.css";
-import "./file_upload.ts";
-import "./ui.ts";
+import type { FileProgress, ReadableSize, ReadableSpeed } from "./utils";
 import { connectWebsocket, isWebSocketMsg } from "./websocket";
-import {
-  calculateProgress,
-  toReadableSize,
-  type FileProgress,
-  type ReadableSize,
-  type ReadableSpeed,
-} from "./utils.ts";
-import { refreshScreen } from "./ui.ts";
-import { streamPendingFile } from "./file_upload.ts";
+import { calculateProgress, toReadableSize } from "./utils";
+import { refreshScreen } from "./ui";
+import { streamPendingFile } from "./file_upload";
+import "./file_upload";
+import "./ui.ts";
+import "./style.css";
 
 type Transfer = {
   name: string;
