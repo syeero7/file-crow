@@ -10,12 +10,13 @@ import {
   type ReadableSpeed,
 } from "./utils.ts";
 import { refreshScreen } from "./ui.ts";
+import { streamPendingFile } from "./file_upload.ts";
 
 type Transfer = {
   name: string;
   size: ReadableSize;
   progress: FileProgress;
-  status: "pending" | "ready" | "done" | ReadableSpeed;
+  status: "pending" | "failed" | "done" | ReadableSpeed;
 };
 
 const filesMap = new Map<string, Transfer>();
@@ -51,14 +52,14 @@ connectWebsocket((str) => {
     }
 
     case "ready": {
-      const old = filesMap.get(msg.id)!;
-      filesMap.set(msg.id, { ...old, status: "ready" });
+      streamPendingFile(msg.id);
       break;
     }
 
-    case "done": {
+    case "done":
+    case "failed": {
       const old = filesMap.get(msg.id)!;
-      filesMap.set(msg.id, { ...old, status: "done" });
+      filesMap.set(msg.id, { ...old, status: msg.type });
 
       setTimeout(() => {
         filesMap.delete(msg.id);

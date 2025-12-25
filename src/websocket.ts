@@ -44,7 +44,7 @@ type TransferProgressMsg = {
 };
 
 type FileTranferStateMsg = {
-  type: "ready" | "done";
+  type: "ready" | "done" | "failed";
   id: string;
 };
 

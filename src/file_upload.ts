@@ -2,6 +2,7 @@ import { registerFile, streamFile } from "./api";
 import { getElement } from "./utils";
 
 const uploadForm = getElement("[data-upload-form]");
+const pendingFiles = new Map<string, File>();
 
 uploadForm.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -15,8 +16,15 @@ uploadForm.addEventListener("submit", (e) => {
     const id = crypto.randomUUID();
 
     await registerFile({ type: "register", id, name, size });
-    streamFile(id, file);
+    pendingFiles.set(id, file);
   });
 
   form.reset();
 });
+
+export function streamPendingFile(fileId: string) {
+  const file = pendingFiles.get(fileId);
+  if (!file) return console.error(`file with id ${fileId} not found`);
+
+  streamFile(fileId, file).then(() => pendingFiles.delete(fileId));
+}

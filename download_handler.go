@@ -21,20 +21,24 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	broadcastTransferState(id, "ready")
+
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", ft.name))
 	w.Header().Set("Content-Type", "application/octet-stream")
 	if _, err := io.Copy(w, ft.session.reader); err != nil {
 		log.Printf("transfer failed: %v", err)
-		return
+		broadcastTransferState(id, "failed")
+	} else {
+		defer broadcastTransferState(id, "done")
 	}
-
-	// TODO: handle tcp write: broken pipe error
 
 	ft.session.reader.Close()
 	ft.session.done <- struct{}{}
 	transfers.remove(id)
+}
 
-	ts := TransferState{ID: id, Type: "done"}
+func broadcastTransferState(id, message string) {
+	ts := TransferState{ID: id, Type: message}
 	msg, err := json.Marshal(ts)
 	if err != nil {
 		log.Printf("failed to encode json: %v", err)

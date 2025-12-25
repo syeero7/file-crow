@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -20,14 +21,16 @@ type ProgressWriter struct {
 
 func (pw *ProgressWriter) Write(d []byte) (int, error) {
 	n, err := pw.writer.Write(d)
-	if n > 0 {
-		pw.written += n
-
-		if pw.limiter.Allow() || pw.written == pw.total {
-			pw.onProgress(pw.written, pw.total)
-		}
+	if err != nil {
+		return n, err
 	}
-	return n, err
+
+	pw.written += n
+	if pw.limiter.Allow() || pw.written == pw.total {
+		pw.onProgress(pw.written, pw.total)
+	}
+
+	return n, nil
 }
 
 type FileProgress struct {
@@ -45,9 +48,33 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pw := &ProgressWriter{
-		total:   int(r.ContentLength),
-		writer:  ft.session.writer,
+	ctx := r.Context()
+	go func() {
+		<-ctx.Done()
+		ft.session.writer.CloseWithError(errors.New("disconnected"))
+	}()
+
+	pw := newProgressWriter(id, int(r.ContentLength), ft.session.writer)
+	buf1MB := make([]byte, 1024*1024)
+	if _, err := io.CopyBuffer(pw, r.Body, buf1MB); err != nil {
+		if !errors.Is(err, io.ErrClosedPipe) {
+			log.Printf("transfer failed: %v", err)
+		}
+		ft.session.writer.CloseWithError(err)
+	}
+
+	if pw.total == pw.written {
+		ft.session.writer.Close()
+		w.WriteHeader(http.StatusOK)
+	}
+
+	<-ft.session.done
+}
+
+func newProgressWriter(id string, t int, w io.Writer) *ProgressWriter {
+	return &ProgressWriter{
+		total:   t,
+		writer:  w,
 		limiter: *rate.NewLimiter(rate.Every(250*time.Millisecond), 1),
 		onProgress: func(current, total int) {
 			p := FileProgress{ID: id, Total: total, Current: current, Type: "progress"}
@@ -59,22 +86,4 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 			fileServer.broadcast(msg)
 		},
 	}
-
-	ts := TransferState{ID: id, Type: "ready"}
-	msg, err := json.Marshal(ts)
-	if err != nil {
-		log.Printf("failed to encode json: %v", err)
-		return
-	}
-	fileServer.broadcast(msg)
-
-	buf1MB := make([]byte, 1024*1024)
-	if _, err := io.CopyBuffer(pw, r.Body, buf1MB); err != nil {
-		log.Printf("transfer failed: %v", err)
-		return
-	}
-
-	ft.session.writer.Close()
-	<-ft.session.done
-	w.WriteHeader(http.StatusOK)
 }

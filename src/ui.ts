@@ -28,7 +28,7 @@ function renderElements() {
       progressEl.value = ft.progress.percentage;
     }
 
-    if (ft.status === "ready") {
+    if (ft.status === "pending") {
       getElement<HTMLAnchorElement>("[data-file-url]", clone).href =
         getDownloadURL(fileId);
     }
