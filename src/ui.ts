@@ -12,7 +12,10 @@ function renderElements() {
     if (!(clone instanceof DocumentFragment)) return;
 
     getElement("[data-file-size]", clone).textContent = ft.size;
-    getElement("[data-file-status]", clone).textContent = ft.status;
+
+    const statusEl = getElement("[data-file-status]", clone);
+    statusEl.dataset.fileStatus = ft.status;
+    statusEl.textContent = ft.status;
 
     const nameEl = getElement<HTMLLabelElement>("[data-file-name]", clone);
     nameEl.textContent = ft.name;

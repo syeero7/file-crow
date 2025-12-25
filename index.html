@@ -32,10 +32,14 @@
 
     <template data-file-temp>
       <li data-file-item class="file-item">
-        <label for="1s" data-file-name>name</label>
-        <span data-file-size class="size">size:</span>
+        <label data-file-name>
+          <!-- filename -->
+        </label>
+        <span data-file-size class="size">
+          <!-- size -->
+        </span>
         <span data-file-status class="status">
-          pending | ready | progress | done
+          <!-- pending | ready | progress | done | failed -->
         </span>
         <a download title="download file" data-file-url>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
@@ -44,7 +48,7 @@
             />
           </svg>
         </a>
-        <progress id="1s" data-file-progress max="100"></progress>
+        <progress data-file-progress max="100"></progress>
       </li>
     </template>
 

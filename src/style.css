@@ -11,10 +11,14 @@
   --background: hsl(0 0% 3.9%);
   --primary: hsla(0 0% 14.9%/0.4);
   --secondary: hsl(160 60% 32%);
-  --accent: hsl(0 72.2% 50.6%);
 
   --radius: 1.2em;
   --glow-color: var(--text);
+
+  --yellow: hsl(43.3 96.4% 56.3%);
+  --green: hsl(142.1 70.6% 45.3%);
+  --blue: hsl(198.6 88.7% 48.4%);
+  --red: hsl(0 72.2% 58%);
 }
 
 button,
@@ -160,6 +164,9 @@ section {
     margin-top: 0.2em;
     font-size: var(--text-sm);
     margin-left: 2em;
+    font-weight: 500;
+    color: var(--blue);
+    letter-spacing: 1px;
   }
 
   progress {
@@ -168,6 +175,23 @@ section {
     margin-inline: auto;
     height: 5px;
     margin-top: 0.25em;
+  }
+
+  --text-transform: capitalize;
+
+  [data-file-status="pending"] {
+    color: var(--yellow);
+    text-transform: var(--text-transform);
+  }
+
+  [data-file-status="failed"] {
+    color: var(--red);
+    text-transform: var(--text-transform);
+  }
+
+  [data-file-status="done"] {
+    color: var(--green);
+    text-transform: var(--text-transform);
   }
 
   a {
