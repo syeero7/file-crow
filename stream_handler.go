@@ -2,16 +2,19 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"time"
+
+	"golang.org/x/time/rate"
 )
 
 type ProgressWriter struct {
 	writer     io.Writer
 	total      int
 	written    int
+	limiter    rate.Limiter
 	onProgress func(int, int)
 }
 
@@ -19,7 +22,10 @@ func (pw *ProgressWriter) Write(d []byte) (int, error) {
 	n, err := pw.writer.Write(d)
 	if n > 0 {
 		pw.written += n
-		pw.onProgress(pw.written, pw.total)
+
+		if pw.limiter.Allow() || pw.written == pw.total {
+			pw.onProgress(pw.written, pw.total)
+		}
 	}
 	return n, err
 }
@@ -40,8 +46,9 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pw := &ProgressWriter{
-		total:  int(r.ContentLength),
-		writer: ft.session.writer,
+		total:   int(r.ContentLength),
+		writer:  ft.session.writer,
+		limiter: *rate.NewLimiter(rate.Every(250*time.Millisecond), 1),
 		onProgress: func(current, total int) {
 			p := FileProgress{ID: id, Total: total, Current: current, Type: "progress"}
 			msg, err := json.Marshal(p)
@@ -56,13 +63,14 @@ func streamHandler(w http.ResponseWriter, r *http.Request) {
 	ts := TransferState{ID: id, Type: "ready"}
 	msg, err := json.Marshal(ts)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to encode json.\nerror: %v", err), http.StatusInternalServerError)
+		log.Printf("failed to encode json: %v", err)
 		return
 	}
 	fileServer.broadcast(msg)
 
-	if _, err := io.Copy(pw, r.Body); err != nil {
-		http.Error(w, fmt.Sprintf("transfer failed.\nerror: %v", err), http.StatusInternalServerError)
+	buf1MB := make([]byte, 1024*1024)
+	if _, err := io.CopyBuffer(pw, r.Body, buf1MB); err != nil {
+		log.Printf("transfer failed: %v", err)
 		return
 	}
 
