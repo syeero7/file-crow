@@ -1,4 +1,4 @@
-module github.com/syeero7/file-crow
+module github.com/syeero7/filecrow
 
 go 1.25.5
 
