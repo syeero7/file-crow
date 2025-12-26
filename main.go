@@ -5,6 +5,7 @@ import (
 	"embed"
 	"flag"
 	"fmt"
+	"io/fs"
 	"log"
 	"net"
 	"net/http"
@@ -14,7 +15,7 @@ import (
 	"time"
 )
 
-//go:embed web
+//go:embed dist
 var frontend embed.FS
 
 func main() {
@@ -26,18 +27,18 @@ func main() {
 		os.Exit(0)
 	}
 
-	mux := http.NewServeMux()
-	fsvr := fileServer{}
-	if err := fsvr.makeFSDir(); err != nil {
+	distFS, err := fs.Sub(frontend, "dist")
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	mux.Handle("GET /web/", http.FileServer(http.FS(frontend)))
-	mux.HandleFunc("GET /files/{file}", fsvr.middleware(downloadHandler))
-	mux.HandleFunc("POST /upload", fsvr.middleware(uploadHandler))
-	mux.HandleFunc("POST /delete", fsvr.middleware(deleteAllHandler))
-	mux.HandleFunc("POST /delete/{file}", fsvr.middleware(deleteFileHandler))
-	mux.HandleFunc("GET /", fsvr.middleware(fileHandler))
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("POST /register", registerHandler)
+	mux.HandleFunc("POST /stream", streamHandler)
+	mux.HandleFunc("GET /download", downloadHandler)
+	mux.HandleFunc("/ws", websocketHandler)
+	mux.Handle("/", http.FileServer(http.FS(distFS)))
 
 	server := &http.Server{
 		Addr:              fmt.Sprintf(":%d", *port),
@@ -65,7 +66,7 @@ func main() {
 	}
 
 	log.Println("server is shutting down...")
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {

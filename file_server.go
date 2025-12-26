@@ -1,103 +1,91 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-	"os"
-	"path"
-	"path/filepath"
-	"runtime"
-	"strings"
+	"context"
+	"net"
+	"sync"
+	"time"
+
+	"github.com/coder/websocket"
+	"golang.org/x/time/rate"
 )
 
-type File struct{ Temp, Name, Size string }
-
-type fileServer struct {
-	Files     []File
-	directory string
+type FileServer struct {
+	clients          map[*Client]struct{}
+	mu               sync.Mutex
+	broadcastLimiter rate.Limiter
 }
 
-func (f *fileServer) middleware(fn func(*fileServer, http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fn(f, w, r)
-	}
+type Client struct {
+	msgs      chan []byte
+	closeSlow func()
 }
 
-func (f *fileServer) makeFSDir() error {
-	dir, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-
-	var perm os.FileMode = 0o755
-	if runtime.GOOS == "windows" {
-		perm = 0o777
-	}
-
-	fsdir := path.Join(dir, "filecrow/files")
-	if err := os.MkdirAll(fsdir, perm); err != nil {
-		return err
-	}
-	f.directory = fsdir
-	return nil
+var fileServer = &FileServer{
+	clients:          make(map[*Client]struct{}),
+	broadcastLimiter: *rate.NewLimiter(rate.Every(time.Millisecond*100), 8),
 }
 
-func (f *fileServer) readFSDir() error {
-	if len(f.Files) > 0 {
-		f.Files = []File{}
-	}
+func (fs *FileServer) broadcast(msg []byte) {
+	fs.mu.Lock()
+	defer fs.mu.Unlock()
 
-	entries, err := os.ReadDir(f.directory)
-	if err != nil {
-		log.Println(f.directory)
-
-		return err
-	}
-
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
+	fs.broadcastLimiter.Wait(context.Background())
+	for client := range fs.clients {
+		select {
+		case client.msgs <- msg:
+		default:
+			go client.closeSlow()
 		}
-
-		info, err := entry.Info()
-		if err != nil {
-			return err
-		}
-
-		file := File{
-			Temp: info.Name(),
-			Name: tmpToNormal(info.Name()),
-			Size: humanReadSize(info.Size()),
-		}
-		f.Files = append(f.Files, file)
 	}
-
-	return nil
 }
 
-func humanReadSize(s int64) string {
-	const unit = 1000
-	if s < unit {
-		return fmt.Sprintf("%d B", s)
-	}
-
-	div, exp := int64(unit), 0
-	for n := s / unit; n >= unit; n /= unit {
-		div *= unit
-		exp++
-	}
-
-	return fmt.Sprintf("%.2f %cB", float64(s)/float64(div), "kMGTPE"[exp])
+func (fs *FileServer) addClient(c *Client) {
+	fs.mu.Lock()
+	fs.clients[c] = struct{}{}
+	fs.mu.Unlock()
 }
 
-func tmpToNormal(name string) string {
-	parts := strings.Split(name, "_tmp-")
-	if len(parts) == 1 {
-		return name
+func (fs *FileServer) removeClient(c *Client) {
+	fs.mu.Lock()
+	delete(fs.clients, c)
+	fs.mu.Unlock()
+}
+
+type NewClient struct {
+	conn     *websocket.Conn
+	client   *Client
+	isClosed func(*websocket.Conn) error
+}
+
+func newClient() *NewClient {
+	const messageBuffer = 16
+	var mu sync.Mutex
+	var conn *websocket.Conn
+	closed := false
+
+	nc := &NewClient{
+		conn: conn,
 	}
 
-	str := strings.Join(parts[:len(parts)-1], "")
-	ext := filepath.Ext(parts[len(parts)-1])
-	return str + ext
+	nc.client = &Client{msgs: make(chan []byte, messageBuffer), closeSlow: func() {
+		mu.Lock()
+		defer mu.Unlock()
+		closed = true
+		if conn != nil {
+			conn.Close(websocket.StatusPolicyViolation, "connection is too slow too keep up")
+		}
+	}}
+
+	nc.isClosed = func(c *websocket.Conn) error {
+		mu.Lock()
+		defer mu.Unlock()
+		if closed {
+			return net.ErrClosed
+		}
+		nc.conn = c
+		return nil
+	}
+
+	return nc
 }

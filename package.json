@@ -1,0 +1,17 @@
+{
+  "name": "file-crow",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "go-build": "CGO_ENABLED=0 go build -trimpath -ldflags='-s -w'",
+    "build": "tsc && vite build && npm run go-build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4",
+    "vite-plugin-minify": "^2.1.0"
+  }
+}
