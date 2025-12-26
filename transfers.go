@@ -13,7 +13,6 @@ type Session struct {
 
 type FileTransfer struct {
 	name    string
-	size    int
 	session *Session
 }
 

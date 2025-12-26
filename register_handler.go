@@ -36,7 +36,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 	pr, pw := io.Pipe()
 	s := &Session{reader: pr, writer: pw, done: make(chan struct{})}
-	ft := &FileTransfer{name: data.Name, size: data.Size, session: s}
+	ft := &FileTransfer{name: data.Name, session: s}
 	transfers.add(data.ID, ft)
 
 	fileServer.broadcast(body)
