@@ -1,17 +1,17 @@
 {
-  "name": "file-crow",
+  "name": "filecrow",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "description": "A peer-to-peer file server for sharing files over a local network.",
   "scripts": {
-    "dev": "vite",
     "go-build": "CGO_ENABLED=0 go build -trimpath -ldflags='-s -w'",
-    "build": "tsc && vite build && npm run go-build",
-    "preview": "vite preview"
+    "build": "npm run build -w frontend && npm run go-build"
   },
-  "devDependencies": {
-    "typescript": "~5.9.3",
-    "vite": "^7.2.4",
-    "vite-plugin-minify": "^2.1.0"
-  }
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syeero7/filecrow.git"
+  },
+  "workspaces": [
+    "frontend"
+  ]
 }

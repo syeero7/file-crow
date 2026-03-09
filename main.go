@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-//go:embed dist
+//go:embed frontend/dist
 var frontend embed.FS
 
 func main() {
