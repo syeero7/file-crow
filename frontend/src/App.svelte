@@ -1,7 +1,13 @@
-<script>
+<script lang="ts">
+  import UploadFiles from "@/components/UploadFiles.svelte";
+  import { initializeWebsocket } from "@/lib/websocket.svelte";
+
+  initializeWebsocket();
 </script>
 
-<main></main>
+<main>
+  <UploadFiles />
+</main>
 
 <style>
 </style>
