@@ -15,7 +15,7 @@
 </script>
 
 <section>
-  <h1>Upload Files</h1>
+  <h2>Upload Files</h2>
 
   <form
     onsubmit={(e) => {
