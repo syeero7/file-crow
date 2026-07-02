@@ -76,8 +76,8 @@ class WS {
     };
   }
 
-  get files(): ReadonlyMap<string, Transfer> {
-    return this.#files;
+  get files(): MapIterator<[string, Transfer]> {
+    return this.#files.entries();
   }
 }
 
