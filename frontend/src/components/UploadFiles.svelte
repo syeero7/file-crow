@@ -19,9 +19,12 @@
 
   <form
     onsubmit={(e) => {
+      e.preventDefault()
+
       const form = e.currentTarget;
       const formData = new FormData(form);
       const files = formData.getAll("files") as File[];
+
       register(files);
       form.reset();
     }}
