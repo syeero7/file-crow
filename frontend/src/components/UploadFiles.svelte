@@ -31,7 +31,7 @@
     }}
   >
     <div>
-      <input type="file" name="files" multiple aria-label="select files to upload" />
+      <input name="files" aria-label="select files to upload" multiple type="file" />
     </div>
     <button type="submit">Upload</button>
   </form>
