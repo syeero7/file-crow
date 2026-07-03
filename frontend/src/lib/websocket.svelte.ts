@@ -56,7 +56,7 @@ class WS {
 
           case "ready": {
             const file = this.pendingFiles.get(msg.id);
-            if (file) streamFile(msg.id, file);
+            if (file) streamFile(msg.id, file).then(() => this.pendingFiles.delete(msg.id));
             break;
           }
 
