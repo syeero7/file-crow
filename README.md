@@ -10,7 +10,11 @@ I often transfer files between my PC and mobile device using a USB cable. But ev
 
 ## Quick Start
 
-\* [Go](https://go.dev/doc/install) v1.25.5 or higher and [Node](https://nodejs.org/en/download) v24.11.1 or higher are required.
+### Requirements
+
+- [Go](https://go.dev/doc/install) v1.25.5 or higher
+- [Node](https://nodejs.org/en/download) v24.15 or higher
+- [pnpm](https://pnpm.io/installation) v11.9 or higher
 
 1. Install filecrow
 
@@ -19,18 +23,15 @@ I often transfer files between my PC and mobile device using a USB cable. But ev
 git clone https://github.com/syeero7/filecrow
 cd filecrow
 
-# install dependencies
-go mod tidy
-npm install
-
-# build the compiled binary
-npm run build
+# install dependencies and build the compiled binary
+chmod +x build.sh
+/build.sh
 ```
 
 2. Start the file server
 
 ```bash
-filecrow
+./bin/filecrow
 ```
 
 3. Access the web interface at `http://localhost:<PORT>` on the first device. The default port is 8080.
@@ -65,7 +66,8 @@ cd filecrow
 ### Build the compiled binary
 
 ```bash
-npm run build
+chmod +x build.sh
+./build.sh
 ```
 
 ### Submit a pull request
