@@ -7,7 +7,7 @@ import svelte from "eslint-plugin-svelte";
 export default defineConfig(
   ts.configs.recommended,
   ts.configs.recommended,
-  svelte.configs.all,
+  svelte.configs.recommended,
   {
     languageOptions: {
       globals: {
