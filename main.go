@@ -27,7 +27,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	distFS, err := fs.Sub(frontend, "dist")
+	distFS, err := fs.Sub(frontend, "frontend/dist")
 	if err != nil {
 		log.Fatal(err)
 	}
