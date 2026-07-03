@@ -13,4 +13,14 @@
 </main>
 
 <style>
+  h1 {
+    max-width: fit-content;
+    margin-inline: auto;
+  }
+
+  main {
+    max-width: 64em;
+    margin-inline: auto;
+    padding: 0.5em;
+  }
 </style>

@@ -1,5 +1,65 @@
-* {
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+body {
+  min-height: 100vh;
+  font-family: system-ui, "Segoe UI", Roboto, "Open Sans", "Helvetica Neue", sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+html {
+  color-scheme: dark light;
 }
 
 :root {
+  --radius: 1.2em;
+
+  --foreground: light-dark(#121212, #fff);
+
+  --background: light-dark(#fff, #121212);
+  --background-a10: light-dark(#f2f2f2, #252525);
+  --background-a20: light-dark(#e4e4e4, #393939);
+  --background-a30: light-dark(#d7d7d7, #4f4f4f);
+
+  --primary: light-dark(#6686f8, #91b0ff);
+  --primary-a10: light-dark(#5874d8, #9cb8ff);
+  --primary-a20: light-dark(#4a62b8, #a6c0ff);
+  --primary-a30: light-dark(#3c519a, #b1c8ff);
+
+  --accent: light-dark(#66f88f, #91ffa9);
+  --accent-a10: light-dark(#58d87c, #9effb2);
+  --accent-a20: light-dark(#4ab869, #abffbb);
+  --accent-a30: light-dark(#3c9a57, #b6ffc4);
+
+  --success: light-dark(#00a23d, #4acc66);
+  --success-a10: light-dark(#48b15c, #77d786);
+  --success-a20: light-dark(#6ebf7a, #9de2a5);
+
+  --warning: light-dark(#c08010, #e8a546);
+  --warning-a10: light-dark(#ca9346, #eeb871);
+  --warning-a20: light-dark(#d4a66a, #f3ca97);
+
+  --danger: light-dark(#df6465, #ff8f8d);
+  --danger-a10: light-dark(#e77d7b, #ffa6a3);
+  --danger-a20: light-dark(#ed9492, #ffbdba);
+
+  --info: light-dark(#4b95c0, #71bbe7);
+  --info-a10: light-dark(#68a5ca, #8fc9ec);
+  --info-a20: light-dark(#83b5d4, #acd7f1);
 }
