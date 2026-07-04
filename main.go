@@ -48,9 +48,9 @@ func main() {
 	serverErr := make(chan error, 1)
 
 	go func() {
-		fmt.Printf("access main interface at http://localhost%s\n", server.Addr)
-		printWebInterfaceAddr(server.Addr)
-		fmt.Println("---------------------------------------------------")
+		fmt.Printf("access local web interface at http://localhost%s\n", server.Addr)
+		printOtherInterfaceAddr(server.Addr)
+		println()
 		if err := server.ListenAndServe(); err != nil {
 			serverErr <- err
 		}
@@ -65,7 +65,6 @@ func main() {
 	case <-stop:
 	}
 
-	log.Println("server is shutting down...")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -74,7 +73,7 @@ func main() {
 	}
 }
 
-func printWebInterfaceAddr(port string) {
+func printOtherInterfaceAddr(port string) {
 	conn, err := net.Dial("udp", "1.1.1.1:80")
 	if err != nil {
 		log.Println(err)
@@ -83,6 +82,6 @@ func printWebInterfaceAddr(port string) {
 
 	defer conn.Close()
 	if addr, ok := conn.LocalAddr().(*net.UDPAddr); ok {
-		fmt.Printf("access other interfaces at http://%s%s\n", addr.IP.To4().String(), port)
+		fmt.Printf("access other web interfaces at http://%s%s\n", addr.IP.To4().String(), port)
 	}
 }
