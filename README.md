@@ -25,7 +25,7 @@ cd filecrow
 
 # install dependencies and build the compiled binary
 chmod +x build.sh
-/build.sh
+./build.sh
 ```
 
 2. Start the file server
@@ -34,9 +34,9 @@ chmod +x build.sh
 ./bin/filecrow
 ```
 
-3. Access the web interface at `http://localhost:<PORT>` on the first device. The default port is 8080.
+3. Access the web ui at `http://localhost:<PORT>` on the host device. The default port is 8080.
 
-4. On other devices, access via `http://<DEVICE_IP>:<PORT>` replacing `<DEVICE_IP>` with the local IP address.
+4. On other devices, access via `http://<DEVICE_IP>:<PORT>`.
 
 5. Upload files to share from any device and download them on other devices.
 
