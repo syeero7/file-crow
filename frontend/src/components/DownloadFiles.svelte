@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { slide } from "svelte/transition";
   import { useWebsocket } from "@/lib/websocket.svelte";
   import { getDownloadURL } from "@/lib/api";
 
@@ -10,20 +11,14 @@
   <ul>
     {#each ws.files as entry (entry[0])}
       {@const [id, file] = entry}
+      {@const { percentage } = file.progress}
 
-      <li>
+      <li transition:slide={{ duration: 250 }}>
         <div class="item">
           <label for={id}>{file.name}</label>
           <span class="size">{file.size}</span>
           <span class="status" data-status={file.status}>{file.status}</span>
-
-          {#if file.status !== "pending"}
-            {@const { percentage } = file.progress}
-
-            <progress {id} max={100} value={percentage}>{percentage} &#37;</progress>
-          {:else}
-            <progress {id}></progress>
-          {/if}
+          <progress {id} max={100} value={percentage}>{percentage} &#37;</progress>
         </div>
 
         {#snippet svg()}
